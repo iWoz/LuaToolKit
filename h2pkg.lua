@@ -1,9 +1,6 @@
 require( "OSUtil", package.seeall )
 --set your path, default current path.
-local path = "D:/Cocos2D-X/TorchLight/newcode/extensions/CocoStudio"
---local path = "D:/Cocos2D-X/TorchLight/newcode/extensions/CocoStudio/GUI"
---local path = "D:/Cocos2D-X/TorchLight/newcode/cocos2dx/support/component"
---local path = "D:/Cocos2D-X/TorchLight/newcode/extensions/network"
+local path = ""
 --set your output path, default current path "__pkgs__" dir.
 local outputPath = ""
 --pkgs you don't wanna change for special reasons
@@ -20,7 +17,8 @@ local exceptList =
 	reader=1,
 	value=1,
 	UISwitch=1,
-	UIWidget=1,
+	LayoutParameter=1,
+	--UIWidget=1,
 }
 
 local SKIP_MODE = 0
@@ -54,6 +52,8 @@ local function classResolve( cls )
 		end
 		--for CocoStudio
 		line = string.gsub( line, "const char %*string", "const char %*stringValue" )
+		--remove the function body defined in header
+		line = string.gsub( line, "{.-};", ";" )
 		--3.remove public protect and private
 		--4.remove the decalration of class member variable
 		--5.remove member functions declared as private or protected
@@ -74,8 +74,6 @@ local function classResolve( cls )
 			if publicBlock == nil then
 				publicBlock = ""
 			end
-			--remove the function body defined in header
-			line = string.gsub( line, "{.-};", ";" )
 			--remove inline keyword for declaration and implementation
 			local inline = string.match( " "..line, "%s*[^%S]inline[^%S]%s*" )
 			if string.match( line, "{" ) then
@@ -114,6 +112,7 @@ end
 path = ( path == "" and OSUtil.getCurPath() or path )
 outputPath = ( outputPath == "" and path.."/__pkgs__" or outputPath )
 print( path, outputPath )
+OSUtil.removeDir( outputPath )
 OSUtil.createDir( outputPath )
 
 local headers = OSUtil.getAllFiles( path, "h" )

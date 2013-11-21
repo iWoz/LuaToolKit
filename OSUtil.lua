@@ -13,18 +13,34 @@ function OSUtil.isWin()
 	return true
 end
 
+REMOVE_DIR = "rm"
 MAKE_DIR = "mkdir"
 SHOW_PATH = "pwd"
 LIST_ALL = "ls"
 
 if OSUtil.isWin() then
+	REMOVE_DIR = "rmdir"
 	MAKE_DIR = "md"
 	SHOW_PATH = "cd"
 	LIST_ALL = "dir"	
 end
 
+function OSUtil.removeDir( path )
+	if OSUtil.isWin() then
+		path = string.gsub( path, "/", "\\" )
+		os.execute( REMOVE_DIR .. " ".. path.." /S/Q" )
+	else
+		os.execute( REMOVE_DIR .. " -rf ".. path )
+	end
+end
+
 function OSUtil.createDir( path )
-	os.execute( MAKE_DIR .. " ".. path )
+	if OSUtil.isWin() then
+		path = string.gsub( path, "/", "\\" )
+		os.execute( MAKE_DIR .. " ".. path )
+	else
+		os.execute( MAKE_DIR .. " -p ".. path )
+	end
 end
 
 function OSUtil.getCurPath()
